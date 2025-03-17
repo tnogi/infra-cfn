@@ -37,6 +37,4 @@ jobs:
         no-fail-on-empty-changeset: 1
         capabilities: CAPABILITY_NAMED_IAM
         parameter-overrides: >-
-          AvailabilityZones=${{ github.event.inputs.region }}a,
-          AvailabilityZones=${{ github.event.inputs.region }}c,
-          KeyPairName=${{ github.event.inputs.keypair }}
+          ProjectName=tnogi
