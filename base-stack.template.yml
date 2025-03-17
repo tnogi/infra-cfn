@@ -27,7 +27,6 @@ Parameters:
     Type: String
     MinLength: 1
     ConstraintDescription: "ProjectName must be entered."
-    Default: tnogi
   Environment:
     Description: "Select a environment name."
     Type: String
