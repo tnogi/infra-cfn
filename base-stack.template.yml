@@ -1,0 +1,127 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: "S3 Bucket Factory Settings Stack and IAM Role For Deployment"
+
+# -------------------------------------
+# Metadata
+# -------------------------------------
+Metadata:
+  AWS::CloudFormation::Interface:
+    # パラメータの並び順
+    ParameterGroups:
+      - Label:
+          default: "Project Configuration"
+        Parameters:
+          - ProjectName
+          - Environment
+      - Label:
+          default: "IAM Configuration"
+        Parameters:
+          - CloudFormationTemplateBucketName
+          - RepositoryName
+          - OIDCArn
+
+# -------------------------------------
+# Parameters
+# -------------------------------------
+Parameters:
+  ProjectName:
+    Description: "Enter the project name. (ex: lc-inquiry-pro)"
+    Type: String
+    MinLength: 1
+    ConstraintDescription: "ProjectName must be entered."
+    Default: tnogi
+  Environment:
+    Description: "Select a environment name."
+    Type: String
+    AllowedValues:
+      - dev
+      - stg
+      - prd
+    ConstraintDescription: "Environment name must be selected."
+    Default: dev
+  RepositoryName:
+    Description: "Enter the repository name."
+    Type: String
+    MinLength: 1
+    ConstraintDescription: "Repository name must be entered."
+    Default: tnogi
+  OIDCArn:
+    Description: "Enter the OIDC Arn. (ex: arn:aws:iam::XXXXXXXXXXXX:oidc-provider/token.actions.githubusercontent.com)"
+    Type: String
+    MinLength: 1
+    ConstraintDescription: "OIDC Arn must be entered."
+    Default: arn:aws:iam::209746572579:oidc-provider/token.actions.githubusercontent.com
+
+# -------------------------------------
+# Resources
+# -------------------------------------
+Resources:
+  # -------------------------------------
+  # S3
+  # -------------------------------------
+  # For CloudFormation Templates
+  CloudFormationTemplatesBucket:
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      BucketName: !Sub cf-templates-${ProjectName}-${Environment}-${AWS::Region}
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      VersioningConfiguration:
+        Status: Enabled
+      LifecycleConfiguration:
+        Rules:
+          - Id: ExpiresAfter365DaysFor4thOlderVersion
+            Status: Enabled
+            NoncurrentVersionExpiration:
+              NewerNoncurrentVersions: 3
+              NoncurrentDays: 365
+
+  # -------------------------------------
+  # IAM Role
+  # -------------------------------------
+  S3DeployIAMRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub S3RoleForGitHubActions-${ProjectName}-${Environment}
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Federated: !Ref OIDCArn
+            Action: sts:AssumeRoleWithWebIdentity
+            Condition:
+              StringLike:
+                token.actions.githubusercontent.com:sub: !Sub repo:${RepositoryName}:*
+              StringEquals:
+                token.actions.githubusercontent.com:aud: sts.amazonaws.com
+      Path: /service-role/
+      Policies:
+        - PolicyName: !Sub S3DeployAccessPolicy-${ProjectName}-${Environment}
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:PutObject
+                Resource:
+                  - !Sub arn:aws:s3:::${CloudFormationTemplateBucket}
+                  - !Sub arn:aws:s3:::${CloudFormationTemplateBucket}/*
+
+# -------------------------------------
+# Outputs
+# -------------------------------------
+Outputs:
+  CloudFormationTemplatesBucketName:
+    Value: !Ref CloudFormationTemplatesBucket
+  CloudFormationTemplatesBucketArn:
+    Value: !GetAtt CloudFormationTemplatesBucket.Arn
