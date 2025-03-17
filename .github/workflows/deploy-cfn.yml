@@ -25,5 +25,5 @@ jobs:
       uses: aws-actions/aws-cloudformation-github-deploy@v1
       with:
         name: cfn-stack
-        template: ./template.yml
+        template: ./main-template.yml
         no-fail-on-empty-changeset: 1
