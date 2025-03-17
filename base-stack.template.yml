@@ -112,8 +112,8 @@ Resources:
                 Action:
                   - s3:PutObject
                 Resource:
-                  - !Sub arn:aws:s3:::${CloudFormationTemplateBucket}
-                  - !Sub arn:aws:s3:::${CloudFormationTemplateBucket}/*
+                  - !Sub arn:aws:s3:::${CloudFormationTemplatesBucket}
+                  - !Sub arn:aws:s3:::${CloudFormationTemplatesBucket}/*
 
 # -------------------------------------
 # Outputs
