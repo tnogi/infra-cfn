@@ -4,11 +4,11 @@ on:
   push:
     branches: [ main ]
     paths:
-      - './base-stack.template.yml'
+      - 'base-stack.template.yml'
   pull_request:
     branches: [ main ]
     paths:
-      - './base-stack.template.yml'
+      - 'base-stack.template.yml'
 
 permissions:
   id-token: write
