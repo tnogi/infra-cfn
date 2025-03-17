@@ -103,7 +103,7 @@ Resources:
                 token.actions.githubusercontent.com:sub: !Sub repo:${RepositoryName}:*
               StringEquals:
                 token.actions.githubusercontent.com:aud: sts.amazonaws.com
-      Path: /service-role/
+      Path: /
       Policies:
         - PolicyName: !Sub S3DeployAccessPolicy-${ProjectName}-${Environment}
           PolicyDocument:
