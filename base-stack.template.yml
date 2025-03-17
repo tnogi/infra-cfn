@@ -116,6 +116,13 @@ Resources:
                   - !Sub arn:aws:s3:::${CloudFormationTemplatesBucket}/*
 
 # -------------------------------------
+# Capabilities
+# -------------------------------------
+Capabilities:
+  - CAPABILITY_IAM
+  - CAPABILITY_NAMED_IAM
+
+# -------------------------------------
 # Outputs
 # -------------------------------------
 Outputs:
