@@ -16,7 +16,6 @@ Metadata:
       - Label:
           default: "IAM Configuration"
         Parameters:
-          - CloudFormationTemplateBucketName
           - RepositoryName
           - OIDCArn
 
