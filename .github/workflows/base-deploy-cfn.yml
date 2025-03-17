@@ -32,6 +32,6 @@ jobs:
     - name: Deploy CFn Stack
       uses: aws-actions/aws-cloudformation-github-deploy@v1
       with:
-        name: cfn-stack
+        name: base-cfn-stack
         template: ./base-stack.template.yml
         no-fail-on-empty-changeset: 1
