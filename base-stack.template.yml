@@ -6,7 +6,6 @@ Description: "S3 Bucket Factory Settings Stack and IAM Role For Deployment"
 # -------------------------------------
 Metadata:
   AWS::CloudFormation::Interface:
-    # パラメータの並び順
     ParameterGroups:
       - Label:
           default: "Project Configuration"
