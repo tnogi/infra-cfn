@@ -1,5 +1,7 @@
+AWSTemplateFormatVersion: "2010-09-09"
+
 Resources:
- SimpleBucket:
-  Type: AWS::S3::Bucket
-  Properties:
-    BucketName: test-s3-detblog
+  VPC:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL:  !Sub 'https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}challenges/example_challenge/templates/example.main.template.yaml'
