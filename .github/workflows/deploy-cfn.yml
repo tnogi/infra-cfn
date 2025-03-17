@@ -3,8 +3,12 @@ name: Deploy CFn Stack
 on:
   push:
     branches: [ main ]
+    paths:
+      - 'infra/**'
   pull_request:
     branches: [ main ]
+    paths:
+      - 'infra/**'
 
 permissions:
   id-token: write
