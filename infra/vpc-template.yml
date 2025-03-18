@@ -55,6 +55,8 @@ Resources:
       Tags:
         - Key: Name
           Value: !Sub "${AWS::StackName}/VPC"
+        - Key: test
+          Value: "0"
 
   InternetGateway:
     Type: AWS::EC2::InternetGateway
