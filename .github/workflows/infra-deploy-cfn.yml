@@ -49,7 +49,7 @@ jobs:
         if echo "CHANGESETID=$(aws cloudformation list-change-sets --stack-name ${{env.STACK_NAME}} --output yaml | 
             grep changeSet/GitHubActions-${{env.CURRENT_DATETIME}} | 
             awk '{print $3}')"  >> ${GITHUB_ENV}; then
-          aws cloudformation create-stack --stack-name ${{env.STACK_NAME}}
+          aws cloudformation create-stack --stack-name ${{env.STACK_NAME}} --template-url https://cf-templates-tnogi-dev-ap-northeast-1.s3.amazonaws.com/main-template.yml
         fi
 
     - name: Change Set Check ${{env.YAML_NAME}}
