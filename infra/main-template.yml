@@ -4,4 +4,4 @@ Resources:
   VPC:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL:  !Sub 'https://cf-templates-tnogi-dev-ap-northeast-1.s3.amazonaws.com/main-template.yml'
+      TemplateURL: https://cf-templates-tnogi-dev-ap-northeast-1.s3.amazonaws.com/main-template.yml
