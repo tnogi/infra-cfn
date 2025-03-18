@@ -53,6 +53,7 @@ jobs:
         fi
 
     - name: Change Set Check ${{env.YAML_NAME}}
+      if: env.RUN_NO != '1'
       run: |
         while true
     - name: Cfn Deploy ${{env.YAML_NAME}}
