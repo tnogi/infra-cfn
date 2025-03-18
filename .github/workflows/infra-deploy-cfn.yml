@@ -44,26 +44,19 @@ jobs:
         changed_templates=$(git diff HEAD^ --name-only | grep -c ${{ env.WORKING_DIRECTORY }}/)
         echo changed_templates=$changed_templates >> "$GITHUB_OUTPUT"
 
-    - name: Copy files to the s3 bucket
-      env:
-        BUCKET_NAME: cf-templates-tnogi-dev-ap-northeast-1
+    - name: Upload to S3
+      if: ${{ steps.templates.outputs.changed_templates > 0 }};
       run: |
-        aws s3 sync ./infra s3://${BUCKET_NAME}
+        templates=$(git diff HEAD^ --name-status | grep ${{ env.WORKING_DIRECTORY }}/ | grep "^M\|^A" | cut -f2)
+        for template in $templates; do
+          aws s3 cp $template s3://cf-templates-tnogi-dev-ap-northeast-1
+        done
 
-    - name: Change Set ID Get ${{env.YAML_NAME}}
-      run: >
-        echo "CHANGESETID=$(aws cloudformation list-change-sets --stack-name ${{env.STACK_NAME}} --output yaml | 
-        grep changeSet/GitHubActions-${{env.CURRENT_DATETIME}} | 
-        awk '{print $3}')"  >> ${GITHUB_ENV}
-
-    - name: Change Set Check ${{env.YAML_NAME}}
-      if: env.RUN_NO != '1'
-      run: |
-        while true
-    - name: Cfn Deploy ${{env.YAML_NAME}}
-      if: env.RUN_NO != '1'  && env.STATUS == 'CREATE_COMPLETE'
-      run: aws cloudformation execute-change-set --change-set-name ${{env.CHANGESETID}}
-
-    - name: Cfn Deploy Check ${{env.YAML_NAME}}
-      if: env.RUN_NO != '1'  && env.STATUS == 'CREATE_COMPLETE'
-      run: aws cloudformation wait stack-update-complete --stack-name ${{env.STACK_NAME}}
+    - name: Deploy CFn Stack
+      uses: aws-actions/aws-cloudformation-github-deploy@v1
+      if: ${{ steps.templates.outputs.changed_templates > 0 }};
+      with:
+        name: infra-cfn
+        template: https://cf-templates-tnogi-dev-ap-northeast-1.s3.amazonaws.com/main-template.yml
+        no-fail-on-empty-changeset: 1
+        capabilities: CAPABILITY_NAMED_IAM
