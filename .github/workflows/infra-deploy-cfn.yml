@@ -46,13 +46,15 @@ jobs:
 
     - name: Change Set ID Get ${{env.YAML_NAME}}
       run: >
-        echo "CHANGESETID=$(aws cloudformation list-change-sets --stack-name ${{env.STACK_NAME}} --output yaml | 
-        grep changeSet/GitHubActions-${{env.CURRENT_DATETIME}} | 
-        awk '{print $3}')"  >> ${GITHUB_ENV}
+        if echo "CHANGESETID=$(aws cloudformation list-change-sets --stack-name ${{env.STACK_NAME}} --output yaml | 
+            grep changeSet/GitHubActions-${{env.CURRENT_DATETIME}} | 
+            awk '{print $3}')"  >> ${GITHUB_ENV}; then
+          aws cloudformation create-stack --stack-name ${{env.STACK_NAME}}
+        fi
 
     - name: Change Set Check ${{env.YAML_NAME}}
       run: |
-        while true Hub Actionsを再実行した場合にはデプロイを実行
+        while true
     - name: Cfn Deploy ${{env.YAML_NAME}}
       if: env.RUN_NO != '1'  && env.STATUS == 'CREATE_COMPLETE'
       run: aws cloudformation execute-change-set --change-set-name ${{env.CHANGESETID}}
