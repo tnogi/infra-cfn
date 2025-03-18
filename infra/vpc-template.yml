@@ -1,7 +1,6 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: "VPC network environment (each three public and private subnets with a NAT gateway)"
 
-
 Parameters:
   CidrBlockVPC:
     Type: String
