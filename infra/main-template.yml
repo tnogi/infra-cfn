@@ -1,7 +1,35 @@
 AWSTemplateFormatVersion: "2010-09-09"
 # https://dev.classmethod.jp/articles/getting-started-amazon-eks-with-eksctl/
+
+Parameters:
+  CidrBlockVPC:
+    Type: String
+    Default: 192.168.0.0/16
+  AllowIP:
+    Type: String
+    Default: 0.0.0.0/0
+
 Resources:
   VPC:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: https://cf-templates-tnogi-dev-ap-northeast-1.s3.amazonaws.com/vpc-template.yml
+      Parameters:
+        CidrBlockVPC: !Ref CidrBlockVPC
+        CidrBlockSubnetPublic1: !Select [ 0, !Cidr [ !GetAtt VPC.CidrBlock, 8, 8 ]]
+        CidrBlockSubnetPublic2: !Select [ 1, !Cidr [ !GetAtt VPC.CidrBlock, 8, 8 ]]
+        CidrBlockSubnetPublic3: !Select [ 2, !Cidr [ !GetAtt VPC.CidrBlock, 8, 8 ]]
+        CidrBlockSubnetPrivate1: !Select [ 3, !Cidr [ !GetAtt VPC.CidrBlock, 8, 8 ]]
+        CidrBlockSubnetPrivate2: !Select [ 4, !Cidr [ !GetAtt VPC.CidrBlock, 8, 8 ]]
+        CidrBlockSubnetPrivate3: !Select [ 5, !Cidr [ !GetAtt VPC.CidrBlock, 8, 8 ]]
+
+  VPC:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://cf-templates-tnogi-dev-ap-northeast-1.s3.amazonaws.com/vpc-template.yml
+      Parameters:
+        AllowIP: !Ref AllowIP
+        VPC: !GetAtt VPC.Outputs.VPC
+        PublicSubnet1: !GetAtt VPC.Outputs.PublicSubnet1Id
+        InstanceType: t2.large
+        VPCCIDR: !Ref CidrBlockVPC
