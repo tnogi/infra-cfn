@@ -136,7 +136,7 @@ Resources:
             echo "file_name=`ls -1 | grep dump.tar.gz | head -1`" >> /home/rocky/bkup/bkup.sh
             echo "if [ $file_count -gt $LIMIT ]" >> /home/rocky/bkup/bkup.sh
             echo "then" >> /home/rocky/bkup/bkup.sh
-            echo "    aws s3 rm s3://${!BUCKET_NAME}/${!BUCKET_PATH}/${file_name}" >> /home/rocky/bkup/bkup.sh
+            echo "    aws s3 rm s3://${!BUCKET_NAME}/${!BUCKET_PATH}/${!file_name}" >> /home/rocky/bkup/bkup.sh
             echo "    rm -rf `ls -1 | grep dump.tar.gz | head -1 | xargs rm -rf`" >> /home/rocky/bkup/bkup.sh
             echo "fi" >> /home/rocky/bkup/bkup.sh
             */5 * * * * /bin/bash /home/rocky/bkup/bkup.sh 2>&1
