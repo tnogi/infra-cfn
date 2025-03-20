@@ -1,4 +1,9 @@
 AWSTemplateFormatVersion: 2010-09-09
+# Mongo DB EOL info: https://www.mongodb.com/legal/support-policy/lifecycles
+# MongoDB 5.0: October 2024
+# Rocky Linux EOL info: https://endoflife.date/rocky-linux
+# 8: 01 May 2021 (Security Support: 31 May 2024)
+# Ref: https://www.hopes.host/blog/mongodb-install
 
 Parameters:
   AllowIP:
