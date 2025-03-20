@@ -1,9 +1,19 @@
 AWSTemplateFormatVersion: 2010-09-09
-# Mongo DB EOL info: https://www.mongodb.com/legal/support-policy/lifecycles
+# MongoDB EOL info: https://www.mongodb.com/legal/support-policy/lifecycles
 # MongoDB 5.0: October 2024
 # Rocky Linux EOL info: https://endoflife.date/rocky-linux
 # 8: 01 May 2021 (Security Support: 31 May 2024)
 # Ref: https://www.hopes.host/blog/mongodb-install
+
+# MongoDB operation
+# > use admin
+# switched to db admin
+# >  db.createUser({user:"mongo", pwd:"password", roles:["root"]})
+# Successfully added user: { "user" : "mongo", "roles" : [ "root" ] } 
+# Ref: https://qiita.com/moyuu/items/7ce1dd3e2db5b37abb54
+
+# MongoDB Backup
+# https://qiita.com/bohebohechan/items/8904bb626399d40f4bb3
 
 Parameters:
   AllowIP:
@@ -89,7 +99,8 @@ Resources:
       - Key: Name
         Value: MongoDB
       UserData:
-        Fn::Base64: !Sub |
+        Fn::Base64: !Sub 
+          - |
             #!/bin/bash -x
             download(){  
             until curl -f $@ ; 
@@ -97,6 +108,8 @@ Resources:
             sleep 1
             done
             }
+
+            # Install MongoDB
             echo "[mongodb-org-5.0]" >> /etc/yum.repos.d/mongodb-org-5.0.repo 
             echo "name=MongoDB Repository" >> /etc/yum.repos.d/mongodb-org-5.0.repo 
             echo "baseurl=https://repo.mongodb.org/yum/redhat/8/mongodb-org/5.0/x86_64/" >> /etc/yum.repos.d/mongodb-org-5.0.repo 
@@ -107,7 +120,57 @@ Resources:
             systemctl start mongod
             systemctl enable mongod
 
+            # Backup MongoDB and store to S3
+            echo "BUCKET_NAME=${BucketName}" >> /home/rocky/bkup/bkup.sh
+            echo "BUCKET_PATH=${BucketPath}" >> /home/rocky/bkup/bkup.sh
+            echo "LIMIT=5" >> /home/rocky/bkup/bkup.sh
+            echo "BACKUP_FILE=`date +"%Y%m%d-%H%M%S".dump`" >> /home/rocky/bkup/bkup.sh
+            echo "BACKUP_DIR=/home/rocky/bkup" >> /home/rocky/bkup/bkup.sh
+            echo "LOG=${!BACKUP_DIR}/${!BACKUP_FILE}.log" >> /home/rocky/bkup/bkup.sh
+            echo "mongodump -o ${!BACKUP_DIR}/${!BACKUP_FILE} 2>&1 | tee -a $LOG" >> /home/rocky/bkup/bkup.sh
+            echo "tar cvzf ${!BACKUP_DIR}/${!BACKUP_FILE}.tar.gz ${!BACKUP_DIR}/${!BACKUP_FILE} 2>&1 | tee  -a $LOG" >> /home/rocky/bkup/bkup.sh
+            echo "rm  -rf ${!BACKUP_DIR}/${!BACKUP_FILE}" >> /home/rocky/bkup/bkup.sh
+            echo "rm  -rf ${!BACKUP_DIR}/${!BACKUP_FILE}.log" >> /home/rocky/bkup/bkup.sh
+            echo "aws s3 cp ${!BACKUP_DIR}/${!BACKUP_FILE}.tar.gz s3://${!BUCKET_NAME}/${!BUCKET_PATH}/" >> /home/rocky/bkup/bkup.sh
+            echo "file_count=`ls -1 | grep dump.tar.gz | wc -l`" >> /home/rocky/bkup/bkup.sh
+            echo "file_name=`ls -1 | grep dump.tar.gz | head -1`" >> /home/rocky/bkup/bkup.sh
+            echo "if [ $file_count -gt $LIMIT ]" >> /home/rocky/bkup/bkup.sh
+            echo "then" >> /home/rocky/bkup/bkup.sh
+            echo "    aws s3 rm s3://${!BUCKET_NAME}/${!BUCKET_PATH}/${file_name}" >> /home/rocky/bkup/bkup.sh
+            echo "    rm -rf `ls -1 | grep dump.tar.gz | head -1 | xargs rm -rf`" >> /home/rocky/bkup/bkup.sh
+            echo "fi" >> /home/rocky/bkup/bkup.sh
+            */5 * * * * /bin/bash /home/rocky/bkup/bkup.sh 2>&1
+          - BucketName: !Ref BackupStoreBucket
+            BucketPath: backup
+
+  BackupStoreBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: False
+        BlockPublicPolicy: False
+        IgnorePublicAcls: False
+        RestrictPublicBuckets: False
+
+  BackupStoreBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref BackupStoreBucket
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal: "*"
+            Action:
+              - s3:ListBucket
+              - s3:GetObject
+              - s3:GetBucketLocation
+            Resource: "*"
+
 Outputs:
   MongoDBPublicIp:
     Description: MongoDB's public Ip address
     Value: !GetAtt MongoDB.PublicIp
+  BackupS3Url:
+    Description: Backup stored S3 link
+    Value: !Sub 'https://${BackupStoreBucket.DomainName}
