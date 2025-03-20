@@ -165,7 +165,9 @@ Resources:
               - s3:ListBucket
               - s3:GetObject
               - s3:GetBucketLocation
-            Resource: "*"
+            Resource: 
+              - !Sub arn:aws:s3:::${BackupStoreBucket}
+              - !Sub arn:aws:s3:::${BackupStoreBucket}/*
 
 Outputs:
   MongoDBPublicIp:
