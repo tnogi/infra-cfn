@@ -5,45 +5,6 @@ Description: "VPC network environment (each three public and private subnets wit
 Parameters:
   CidrBlockVPC:
     Type: String
-    Default: 192.168.0.0/16
-
-  CidrBlockSubnetPublic1:
-    Type: String
-    Default: 192.168.0.0/19
-
-  CidrBlockSubnetPublic2:
-    Type: String
-    Default: 192.168.32.0/19
-
-  CidrBlockSubnetPublic3:
-    Type: String
-    Default: 192.168.64.0/19
-
-  CidrBlockSubnetPrivate1:
-    Type: String
-    Default: 192.168.96.0/19
-
-  CidrBlockSubnetPrivate2:
-    Type: String
-    Default: 192.168.128.0/19
-
-  CidrBlockSubnetPrivate3:
-    Type: String
-    Default: 192.168.160.0/19
-
-Metadata:
-  AWS::CloudFormation::Interface:
-    ParameterGroups:
-      - Label:
-          default: "Network Configuration"
-        Parameters:
-          - CidrBlockVPC
-          - CidrBlockSubnetPublic1
-          - CidrBlockSubnetPublic2
-          - CidrBlockSubnetPublic3
-          - CidrBlockSubnetPrivate1
-          - CidrBlockSubnetPrivate2
-          - CidrBlockSubnetPrivate3
 
 Resources:
   VPC:
@@ -56,8 +17,6 @@ Resources:
       Tags:
         - Key: Name
           Value: !Sub "${AWS::StackName}/VPC"
-        - Key: test
-          Value: "0"
 
   InternetGateway:
     Type: AWS::EC2::InternetGateway
@@ -79,7 +38,7 @@ Resources:
       AvailabilityZone: !Select
         - 0
         - Fn::GetAZs: !Ref AWS::Region
-      CidrBlock: !Ref CidrBlockSubnetPublic1
+      CidrBlock: !Select [ 0, !Cidr [ !GetAtt VPC.CidrBlock, 8, 8 ]]
       Tags:
         - Key: Name
           Value: !Sub "${AWS::StackName}/SubnetPublic1"
@@ -93,7 +52,7 @@ Resources:
       AvailabilityZone: !Select
         - 1
         - Fn::GetAZs: !Ref AWS::Region
-      CidrBlock: !Ref CidrBlockSubnetPublic2
+      CidrBlock: !Select [ 1, !Cidr [ !GetAtt VPC.CidrBlock, 8, 8 ]]
       Tags:
         - Key: Name
           Value: !Sub "${AWS::StackName}/SubnetPublic2"
@@ -107,7 +66,7 @@ Resources:
       AvailabilityZone: !Select
         - 2
         - Fn::GetAZs: !Ref AWS::Region
-      CidrBlock: !Ref CidrBlockSubnetPublic3
+      CidrBlock: !Select [ 2, !Cidr [ !GetAtt VPC.CidrBlock, 8, 8 ]]
       Tags:
         - Key: Name
           Value: !Sub "${AWS::StackName}/SubnetPublic3"
@@ -121,7 +80,7 @@ Resources:
       AvailabilityZone: !Select
         - 0
         - Fn::GetAZs: !Ref AWS::Region
-      CidrBlock: !Ref CidrBlockSubnetPrivate1
+      CidrBlock: !Select [ 3, !Cidr [ !GetAtt VPC.CidrBlock, 8, 8 ]]
       Tags:
         - Key: Name
           Value: !Sub "${AWS::StackName}/SubnetPrivate1"
@@ -135,7 +94,7 @@ Resources:
       AvailabilityZone: !Select
         - 1
         - Fn::GetAZs: !Ref AWS::Region
-      CidrBlock: !Ref CidrBlockSubnetPrivate2
+      CidrBlock: !Select [ 4, !Cidr [ !GetAtt VPC.CidrBlock, 8, 8 ]]
       Tags:
         - Key: Name
           Value: !Sub "${AWS::StackName}/SubnetPrivate2"
@@ -149,7 +108,7 @@ Resources:
       AvailabilityZone: !Select
         - 2
         - Fn::GetAZs: !Ref AWS::Region
-      CidrBlock: !Ref CidrBlockSubnetPrivate3
+      CidrBlock: !Select [ 5, !Cidr [ !GetAtt VPC.CidrBlock, 8, 8 ]]
       Tags:
         - Key: Name
           Value: !Sub "${AWS::StackName}/SubnetPrivate3"
