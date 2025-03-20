@@ -298,3 +298,6 @@ Outputs:
     Value: !Join [ ",", [ !Ref SubnetPrivate1, !Ref SubnetPrivate2, !Ref SubnetPrivate3 ] ]
     Export:
       Name: !Sub "${AWS::StackName}::SubnetsPrivate"
+
+  PublicSubnet1Id:
+    Value: !Ref SubnetPublic1
