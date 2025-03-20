@@ -173,4 +173,4 @@ Outputs:
     Value: !GetAtt MongoDB.PublicIp
   BackupS3Url:
     Description: Backup stored S3 link
-    Value: !Sub 'https://${BackupStoreBucket.DomainName}
+    Value: !Sub 'https://${BackupStoreBucket.DomainName}'
