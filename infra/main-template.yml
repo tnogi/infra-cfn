@@ -20,7 +20,7 @@ Resources:
   MongoDB:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: https://cf-templates-tnogi-dev-ap-northeast-1.s3.amazonaws.com/vpc-template.yml
+      TemplateURL: https://cf-templates-tnogi-dev-ap-northeast-1.s3.amazonaws.com/ec2-template.yml
       Parameters:
         AllowIP: !Ref AllowIP
         VPC: !GetAtt VPC.Outputs.VPC
