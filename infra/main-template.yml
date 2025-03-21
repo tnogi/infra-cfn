@@ -8,6 +8,9 @@ Parameters:
   AllowIP:
     Type: String
     Default: 0.0.0.0/0
+  KeyName:
+    Description: The EC2 Key Pair to allow SSH access to the instance
+    Type: AWS::EC2::KeyPair::KeyName
 
 Resources:
   VPC:
@@ -27,6 +30,7 @@ Resources:
         PublicSubnet1: !GetAtt VPC.Outputs.PublicSubnet1Id
         InstanceType: t2.large
         VPCCIDR: !Ref CidrBlockVPC
+        KeyName: !Ref KeyName
 
 Outputs:
   MongoDBPublicIp:
