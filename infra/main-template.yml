@@ -12,6 +12,9 @@ Parameters:
     Description: The EC2 Key Pair to allow SSH access to the instance
     Type: AWS::EC2::KeyPair::KeyName
     Default: ano
+  IAMServiceArn:
+    Type: String
+    Default: 'arn:aws:iam::209746572579:role/tnogi-admin'
 
 Resources:
   VPC:
@@ -32,6 +35,23 @@ Resources:
         InstanceType: t2.large
         VPCCIDR: !Ref CidrBlockVPC
         KeyName: !Ref KeyName
+
+  k8sBastion:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://cf-templates-tnogi-dev-ap-northeast-1.s3.amazonaws.com/k8s-bastion-template.yml
+      Parameters:
+        VPC: !GetAtt VPC.Outputs.VPC
+        PublicSubnet1: !GetAtt VPC.Outputs.PublicSubnet1Id
+        PublicSubnet2: !GetAtt VPC.Outputs.PublicSubnet2Id
+        PublicSubnet3: !GetAtt VPC.Outputs.PublicSubnet3Id
+        PrivateSubnet1: !GetAtt VPC.Outputs.PrivateSubnet1Id
+        PrivateSubnet2: !GetAtt VPC.Outputs.PrivateSubnet2Id
+        PrivateSubnet3: !GetAtt VPC.Outputs.PrivateSubnet3Id
+        InstanceType: t2.large
+        VPCCIDR: !Ref CidrBlockVPC
+        ClusterName: k8s-app
+        IAMServiceArn: !Ref IAMServiceArn
 
 Outputs:
   MongoDBPublicIp:
