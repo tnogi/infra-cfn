@@ -86,6 +86,7 @@ Resources:
       UserData:
         Fn::Base64: !Sub 
           - |
+            #!/bin/bash
             cd /tmp
 
             yum remove awscli
