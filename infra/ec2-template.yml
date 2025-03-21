@@ -148,25 +148,27 @@ Resources:
             systemctl enable mongod
 
             # Backup MongoDB and store to S3
-            echo "BUCKET_NAME=${BucketName}" >> /home/rocky/bkup/bkup.sh
-            echo "BUCKET_PATH=${BucketPath}" >> /home/rocky/bkup/bkup.sh
-            echo "LIMIT=5" >> /home/rocky/bkup/bkup.sh
-            echo "BACKUP_FILE=`date +"%Y%m%d-%H%M%S".dump`" >> /home/rocky/bkup/bkup.sh
-            echo "BACKUP_DIR=/home/rocky/bkup" >> /home/rocky/bkup/bkup.sh
-            echo "LOG=${!BACKUP_DIR}/${!BACKUP_FILE}.log" >> /home/rocky/bkup/bkup.sh
-            echo "mongodump -o ${!BACKUP_DIR}/${!BACKUP_FILE} 2>&1 | tee -a $LOG" >> /home/rocky/bkup/bkup.sh
-            echo "tar cvzf ${!BACKUP_DIR}/${!BACKUP_FILE}.tar.gz ${!BACKUP_DIR}/${!BACKUP_FILE} 2>&1 | tee  -a $LOG" >> /home/rocky/bkup/bkup.sh
-            echo "rm  -rf ${!BACKUP_DIR}/${!BACKUP_FILE}" >> /home/rocky/bkup/bkup.sh
-            echo "rm  -rf ${!BACKUP_DIR}/${!BACKUP_FILE}.log" >> /home/rocky/bkup/bkup.sh
-            echo "aws s3 cp ${!BACKUP_DIR}/${!BACKUP_FILE}.tar.gz s3://${!BUCKET_NAME}/${!BUCKET_PATH}/" >> /home/rocky/bkup/bkup.sh
-            echo "file_count=`ls -1 | grep dump.tar.gz | wc -l`" >> /home/rocky/bkup/bkup.sh
-            echo "file_name=`ls -1 | grep dump.tar.gz | head -1`" >> /home/rocky/bkup/bkup.sh
-            echo "if [ $file_count -gt $LIMIT ]" >> /home/rocky/bkup/bkup.sh
-            echo "then" >> /home/rocky/bkup/bkup.sh
-            echo "    aws s3 rm s3://${!BUCKET_NAME}/${!BUCKET_PATH}/${!file_name}" >> /home/rocky/bkup/bkup.sh
-            echo "    rm -rf `ls -1 | grep dump.tar.gz | head -1 | xargs rm -rf`" >> /home/rocky/bkup/bkup.sh
-            echo "fi" >> /home/rocky/bkup/bkup.sh
-            */5 * * * * /bin/bash /home/rocky/bkup/bkup.sh 2>&1
+            cd /tmp
+            mkdir ./bkup
+            echo "BUCKET_NAME=${BucketName}" >> /tmp/bkup/bkup.sh
+            echo "BUCKET_PATH=${BucketPath}" >> /tmp/bkup/bkup.sh
+            echo "LIMIT=5" >> /tmp/bkup/bkup.sh
+            echo "BACKUP_FILE=`date +"%Y%m%d-%H%M%S".dump`" >> /tmp/bkup/bkup.sh
+            echo "BACKUP_DIR=/home/rocky/bkup" >> /tmp/bkup/bkup.sh
+            echo "LOG=${!BACKUP_DIR}/${!BACKUP_FILE}.log" >> /tmp/bkup/bkup.sh
+            echo "mongodump -o ${!BACKUP_DIR}/${!BACKUP_FILE} 2>&1 | tee -a $LOG" >> /tmp/bkup/bkup.sh
+            echo "tar cvzf ${!BACKUP_DIR}/${!BACKUP_FILE}.tar.gz ${!BACKUP_DIR}/${!BACKUP_FILE} 2>&1 | tee  -a $LOG" >> /tmp/bkup/bkup.sh
+            echo "rm  -rf ${!BACKUP_DIR}/${!BACKUP_FILE}" >> /tmp/bkup/bkup.sh
+            echo "rm  -rf ${!BACKUP_DIR}/${!BACKUP_FILE}.log" >> /tmp/bkup/bkup.sh
+            echo "aws s3 cp ${!BACKUP_DIR}/${!BACKUP_FILE}.tar.gz s3://${!BUCKET_NAME}/${!BUCKET_PATH}/" >> /tmp/bkup/bkup.sh
+            echo "file_count=`ls -1 | grep dump.tar.gz | wc -l`" >> /tmp/bkup/bkup.sh
+            echo "file_name=`ls -1 | grep dump.tar.gz | head -1`" >> /tmp/bkup/bkup.sh
+            echo "if [ $file_count -gt $LIMIT ]" >> /tmp/bkup/bkup.sh
+            echo "then" >> /tmp/bkup/bkup.sh
+            echo "    aws s3 rm s3://${!BUCKET_NAME}/${!BUCKET_PATH}/${!file_name}" >> /tmp/bkup/bkup.sh
+            echo "    rm -rf `ls -1 | grep dump.tar.gz | head -1 | xargs rm -rf`" >> /tmp/bkup/bkup.sh
+            echo "fi" >> /tmp/bkup/bkup.sh
+            */5 * * * * /bin/bash /tmp/bkup/bkup.sh 2>&1
           - BucketName: !Ref BackupStoreBucket
             BucketPath: backup
 
