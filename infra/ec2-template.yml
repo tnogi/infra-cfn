@@ -102,6 +102,8 @@ Resources:
       Tags:
       - Key: Name
         Value: MongoDB
+      - Key: Name
+        Value: test
       UserData:
         Fn::Base64: !Sub 
           - |
