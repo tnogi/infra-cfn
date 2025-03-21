@@ -1,0 +1,122 @@
+AWSTemplateFormatVersion: 2010-09-09
+# Ref: https://zenn.dev/m_taiki/articles/ad17d4d75a310e
+
+Parameters:
+  VPC:
+    Type: AWS::EC2::VPC::Id
+  PrivateSubnet1:
+    Type: AWS::EC2::Subnet::Id
+  PrivateSubnet2:
+    Type: AWS::EC2::Subnet::Id
+  PrivateSubnet3:
+    Type: AWS::EC2::Subnet::Id
+  PublicSubnet1:
+    Type: AWS::EC2::Subnet::Id
+  PublicSubnet2:
+    Type: AWS::EC2::Subnet::Id
+  PublicSubnet3:
+    Type: AWS::EC2::Subnet::Id
+  InstanceType:
+    Type: String
+    Default: t2.large
+  VPCCIDR:
+    Type: String
+  ClusterName:
+    Type: String
+    Default: k8s-app
+  IAMServiceArn:
+    Type: String
+    Default: 'arn:aws:iam::209746572579:role/tnogi-admin'
+  AmazonLinuxLatestAmiId:
+    Type: 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
+    Default: '/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2'
+
+Resources:
+  SecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: "k8s bastion Security Group"
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+        - IpProtocol: -1
+          FromPort: 0
+          ToPort: 65535
+          CidrIp: !Ref VPCCIDR
+      SecurityGroupEgress:
+        - IpProtocol: -1
+          FromPort: 0
+          ToPort: 65535
+          CidrIp: 0.0.0.0/0
+
+  k8sbastionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+            - ec2.amazonaws.com
+          Action:
+          - sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
+        - arn:aws:iam::aws:policy/AdministratorAccess
+      Path: /
+
+  InstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Path: /
+      Roles:
+      - !Ref k8sbastionRole
+
+  k8sBastion:
+    Type: AWS::EC2::Instance
+    Properties:
+      IamInstanceProfile: !Ref InstanceProfile
+      ImageId: !Ref AmazonLinuxLatestAmiId
+      InstanceType: !Ref InstanceType
+      SecurityGroupIds:
+        - !Ref SecurityGroup
+      SubnetId: !Ref PrivateSubnet1
+      Tags:
+      - Key: Name
+        Value: k8sBastion
+      UserData:
+        Fn::Base64: !Sub 
+          - |
+            cd /tmp
+            curl -O https://s3.us-west-2.amazonaws.com/amazon-eks/1.32.0/2024-12-20/bin/linux/amd64/kubectl
+            chmod +x ./kubectl
+            mkdir -p $HOME/bin && cp ./kubectl $HOME/bin/kubectl && export PATH=$HOME/bin:$PATH
+            echo 'export PATH=$HOME/bin:$PATH' >> ~/.bashrc
+
+            # for ARM systems, set ARCH to: `arm64`, `armv6` or `armv7`
+            ARCH=amd64
+            PLATFORM=$(uname -s)_$ARCH
+
+            curl -sLO "https://github.com/eksctl-io/eksctl/releases/latest/download/eksctl_$PLATFORM.tar.gz"
+
+            # (Optional) Verify checksum
+            curl -sL "https://github.com/eksctl-io/eksctl/releases/latest/download/eksctl_checksums.txt" | grep $PLATFORM | sha256sum --check
+
+            tar -xzf eksctl_$PLATFORM.tar.gz -C /tmp && rm eksctl_$PLATFORM.tar.gz
+
+            mv /tmp/eksctl /usr/local/bin
+
+            eksctl create cluster --name ${ClusterName} --version 1.32 --vpc-public-subnets ${PublicSubnet1}, ${PublicSubnet2}, ${PublicSubnet3} --vpc-private-subnets ${PrivateSubnet1}, ${PrivateSubnet2}, ${PrivateSubnet3}
+            aws eks update-kubeconfig --region ${Region} --name ${ClusterName}
+            eksctl create iamidentitymapping --cluster ${ClusterName} --region ${Region} --arn ${IAMServiceArn} --group system:masters --username admin
+            
+          - ClusterName: !Ref ClusterName
+            Region: !Ref AWS::Region
+            PublicSubnet1: !Ref PublicSubnet1
+            PublicSubnet2: !Ref PublicSubnet2
+            PublicSubnet3: !Ref PublicSubnet3
+            PrivateSubnet1: !Ref PrivateSubnet1
+            PrivateSubnet2: !Ref PrivateSubnet2
+            PrivateSubnet3: !Ref PrivateSubnet3
+            IAMServiceArn: !Ref IAMServiceArn
+
+#Outputs:
