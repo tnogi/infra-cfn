@@ -147,26 +147,34 @@ Resources:
             systemctl start mongod
             systemctl enable mongod
 
-            # Backup MongoDB and store to S3
             cd /tmp
+
+            # Install AWS CLIv2
+            yum remove awscli
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            ./aws/install
+
+            # Backup MongoDB and store to S3
             mkdir ./bkup
             echo "BUCKET_NAME=${BucketName}" >> /tmp/bkup/bkup.sh
             echo "BUCKET_PATH=${BucketPath}" >> /tmp/bkup/bkup.sh
             echo "LIMIT=5" >> /tmp/bkup/bkup.sh
             echo "BACKUP_FILE=`date +"%Y%m%d-%H%M%S".dump`" >> /tmp/bkup/bkup.sh
-            echo "BACKUP_DIR=/home/rocky/bkup" >> /tmp/bkup/bkup.sh
+            echo "BACKUP_DIR=/tmp/bkup" >> /tmp/bkup/bkup.sh
+            echo "sudo chmod 755 /tmp/bkup/bkup.sh" >> /tmp/bkup/bkup.sh
             echo "LOG=${!BACKUP_DIR}/${!BACKUP_FILE}.log" >> /tmp/bkup/bkup.sh
-            echo "mongodump -o ${!BACKUP_DIR}/${!BACKUP_FILE} 2>&1 | tee -a $LOG" >> /tmp/bkup/bkup.sh
-            echo "tar cvzf ${!BACKUP_DIR}/${!BACKUP_FILE}.tar.gz ${!BACKUP_DIR}/${!BACKUP_FILE} 2>&1 | tee  -a $LOG" >> /tmp/bkup/bkup.sh
-            echo "rm  -rf ${!BACKUP_DIR}/${!BACKUP_FILE}" >> /tmp/bkup/bkup.sh
-            echo "rm  -rf ${!BACKUP_DIR}/${!BACKUP_FILE}.log" >> /tmp/bkup/bkup.sh
+            echo "sudo mongodump -o ${!BACKUP_DIR}/${!BACKUP_FILE} 2>&1 | tee -a $LOG" >> /tmp/bkup/bkup.sh
+            echo "sudo tar cvzf ${!BACKUP_DIR}/${!BACKUP_FILE}.tar.gz ${!BACKUP_DIR}/${!BACKUP_FILE} 2>&1 | tee  -a $LOG" >> /tmp/bkup/bkup.sh
+            echo "sudo rm  -rf ${!BACKUP_DIR}/${!BACKUP_FILE}" >> /tmp/bkup/bkup.sh
+            echo "sudo rm  -rf ${!BACKUP_DIR}/${!BACKUP_FILE}.log" >> /tmp/bkup/bkup.sh
             echo "aws s3 cp ${!BACKUP_DIR}/${!BACKUP_FILE}.tar.gz s3://${!BUCKET_NAME}/${!BUCKET_PATH}/" >> /tmp/bkup/bkup.sh
             echo "file_count=`ls -1 | grep dump.tar.gz | wc -l`" >> /tmp/bkup/bkup.sh
             echo "file_name=`ls -1 | grep dump.tar.gz | head -1`" >> /tmp/bkup/bkup.sh
             echo "if [ $file_count -gt $LIMIT ]" >> /tmp/bkup/bkup.sh
             echo "then" >> /tmp/bkup/bkup.sh
             echo "    aws s3 rm s3://${!BUCKET_NAME}/${!BUCKET_PATH}/${!file_name}" >> /tmp/bkup/bkup.sh
-            echo "    rm -rf `ls -1 | grep dump.tar.gz | head -1 | xargs rm -rf`" >> /tmp/bkup/bkup.sh
+            echo "    sudo rm -rf `ls -1 | grep dump.tar.gz | head -1 | xargs rm -rf`" >> /tmp/bkup/bkup.sh
             echo "fi" >> /tmp/bkup/bkup.sh
             */5 * * * * /bin/bash /tmp/bkup/bkup.sh 2>&1
           - BucketName: !Ref BackupStoreBucket
