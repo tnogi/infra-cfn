@@ -27,6 +27,9 @@ Parameters:
     Default: t2.large
   VPCCIDR:
     Type: String
+  KeyName:
+    Description: The EC2 Key Pair to allow SSH access to the instance
+    Type: AWS::EC2::KeyPair::KeyName
 
 Mappings:
   RegionMap:
@@ -88,6 +91,7 @@ Resources:
         - !Ref 'AWS::Region'
         - RockyLinux8
       InstanceType: !Ref InstanceType
+      KeyName: !Ref KeyName
       NetworkInterfaces:
         - AssociatePublicIpAddress: true
           DeviceIndex: "0"
