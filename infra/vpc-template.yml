@@ -263,3 +263,13 @@ Outputs:
 
   PublicSubnet1Id:
     Value: !Ref SubnetPublic1
+  PublicSubnet2Id:
+    Value: !Ref SubnetPublic2
+  PublicSubnet3Id:
+    Value: !Ref SubnetPublic3
+  PrivateSubnet1Id:
+    Value: !Ref SubnetPrivate1
+  PrivateSubnet2Id:
+    Value: !Ref SubnetPrivate2
+  PrivateSubnet3Id:
+    Value: !Ref SubnetPrivate3
