@@ -105,7 +105,7 @@ Resources:
 
             mv /tmp/eksctl $HOME/bin
 
-            eksctl create cluster --name ${ClusterName} --version 1.32 --vpc-public-subnets ${PublicSubnet1}, ${PublicSubnet2}, ${PublicSubnet3} --vpc-private-subnets ${PrivateSubnet1}, ${PrivateSubnet2}, ${PrivateSubnet3}
+            eksctl create cluster --name ${ClusterName} --version 1.32 --region ${Region} --vpc-public-subnets ${PublicSubnet1},${PublicSubnet2},${PublicSubnet3} --vpc-private-subnets ${PrivateSubnet1},${PrivateSubnet2},${PrivateSubnet3}
             aws eks update-kubeconfig --region ${Region} --name ${ClusterName}
             eksctl create iamidentitymapping --cluster ${ClusterName} --region ${Region} --arn ${IAMServiceArn} --group system:masters --username admin
             
