@@ -35,6 +35,7 @@ Resources:
     Type: AWS::EC2::Subnet
     Properties:
       VpcId: !Ref VPC
+      MapPublicIpOnLaunch: true
       AvailabilityZone: !Select
         - 0
         - Fn::GetAZs: !Ref AWS::Region
@@ -49,6 +50,7 @@ Resources:
     Type: AWS::EC2::Subnet
     Properties:
       VpcId: !Ref VPC
+      MapPublicIpOnLaunch: true
       AvailabilityZone: !Select
         - 1
         - Fn::GetAZs: !Ref AWS::Region
@@ -63,6 +65,7 @@ Resources:
     Type: AWS::EC2::Subnet
     Properties:
       VpcId: !Ref VPC
+      MapPublicIpOnLaunch: true
       AvailabilityZone: !Select
         - 2
         - Fn::GetAZs: !Ref AWS::Region
