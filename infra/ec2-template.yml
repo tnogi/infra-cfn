@@ -129,12 +129,14 @@ Resources:
             systemctl start amazon-ssm-agent
 
             ## aws cli install
+            yum remove awscli
             dnf install -y zip unzip
             cd /var/tmp
             curl ${!AWS_CLI_URL} -o "awscliv2.zip"
 
             unzip awscliv2.zip
             ./aws/install
+            echo 'export PATH=$PATH:/usr/local/bin' >> ~/.bashrc
 
             # Install MongoDB
             echo "[mongodb-org-5.0]" >> /etc/yum.repos.d/mongodb-org-5.0.repo 
@@ -149,11 +151,8 @@ Resources:
 
             cd /tmp
 
-            # Install AWS CLIv2
-            yum remove awscli
-            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-            unzip awscliv2.zip
-            ./aws/install
+            curl https://rufuspollock.github.io/s3-bucket-listing/index.html -o index.html
+            aws s3 cp ./index.html s3://${!BUCKET_NAME}
 
             # Backup MongoDB and store to S3
             mkdir ./bkup
@@ -176,7 +175,12 @@ Resources:
             echo "    aws s3 rm s3://${!BUCKET_NAME}/${!BUCKET_PATH}/${!file_name}" >> /tmp/bkup/bkup.sh
             echo "    sudo rm -rf `ls -1 | grep dump.tar.gz | head -1 | xargs rm -rf`" >> /tmp/bkup/bkup.sh
             echo "fi" >> /tmp/bkup/bkup.sh
-            */5 * * * * /bin/bash /tmp/bkup/bkup.sh 2>&1
+            
+            echo '*/5 * * * * /bin/bash /tmp/bkup/bkup.sh 2>&1' > cron.conf
+            crontab cron.conf
+
+            grubby --update-kernel ALL --args selinux=0
+            reboot
           - BucketName: !Ref BackupStoreBucket
             BucketPath: backup
 
