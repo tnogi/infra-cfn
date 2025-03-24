@@ -15,6 +15,9 @@ AWSTemplateFormatVersion: 2010-09-09
 # MongoDB Backup
 # https://qiita.com/bohebohechan/items/8904bb626399d40f4bb3
 
+# Restrice Source IP
+# https://www.mongodb.com/ja-jp/docs/manual/reference/program/mongod/#std-option-mongod.--bind_ip
+
 Parameters:
   AllowIP:
     Type: String
@@ -146,6 +149,7 @@ Resources:
             echo "enabled=1" >> /etc/yum.repos.d/mongodb-org-5.0.repo 
             echo "gpgkey=https://pgp.mongodb.com/server-5.0.asc" >> /etc/yum.repos.d/mongodb-org-5.0.repo 
             yum install -y mongodb-org
+            sed -i s/127.0.0.1/0.0.0.0/g /etc/mongod.conf
             systemctl start mongod
             systemctl enable mongod
 
