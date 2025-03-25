@@ -41,6 +41,7 @@ jobs:
           export PATH=${PATH}:~/.guard/bin
           echo "Installed cfn-guard"
           cfn-guard --version
+          echo "cfn-guard version showed"
 
           templates=$(git diff HEAD^ --name-status | grep ${{ env.WORKING_DIRECTORY }}/ | grep "^M\|^A" | cut -f2)
           for template in $templates; do
