@@ -3,12 +3,46 @@ name: CloudFormation Guard validate
 on:
   push:
 
+defaults:
+  run:
+      shell: bash
+
+permissions:
+  id-token: write
+  contents: read
+  packages: read
+
 jobs:
-  guard:
+  check-cfn-templates:
+    name: Check AWS CloudFormation templates
     runs-on: ubuntu-latest
-    name: CloudFormation Guard validate
     steps:
-      - name: CloudFormation Guard validate
-        uses: aws-cloudformation/cloudformation-guard@action-v0.0.5
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
-          rules: ./cfn-guard-rules/ruleset
+          fetch-depth: 0
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: 'arn:aws:iam::209746572579:role/tnogi-admin'
+          aws-region: ap-northeast-1
+
+      - name: Check how many templates changed
+        id: templates
+        run: |
+          changed_templates=$(git diff HEAD^ --name-only | grep -c ${{ env.WORKING_DIRECTORY }}/)
+          echo changed_templates=$changed_templates >> "$GITHUB_OUTPUT"
+
+      - name: install CloudFormation Guard
+        run: |
+          curl --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/aws-cloudformation/cloudformation-guard/main/install-guard.sh | sh
+          $export PATH="$PATH:~/.guard/bin/"
+
+      - name: Validate CloudFormation Guard
+        if: ${{ steps.templates.outputs.changed_templates > 0 }};
+        run: |
+          templates=$(git diff HEAD^ --name-status | grep ${{ env.WORKING_DIRECTORY }}/ | grep "^M\|^A" | cut -f2)
+          for template in $templates; do
+            ./cfn-guard-linux/cfn-guard check --template ./infra/$template --rule_set ./cfn-guard-rules/ruleset
+          done
