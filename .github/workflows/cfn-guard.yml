@@ -37,7 +37,7 @@ jobs:
       - name: install CloudFormation Guard
         run: |
           curl --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/aws-cloudformation/cloudformation-guard/main/install-guard.sh | sh
-          export PATH=~/.guard/bin:$PATH
+          export PATH=${PATH}:~/.guard/bin
 
       - name: Validate CloudFormation Guard
         if: ${{ steps.templates.outputs.changed_templates > 0 }};
