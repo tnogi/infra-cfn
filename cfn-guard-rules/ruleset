@@ -1,0 +1,3 @@
+let disallowed_ingress_rule = [{"CidrIp":"0.0.0.0/0","FromPort":22,"IpProtocol":"tcp","ToPort":22}]
+
+AWS::EC2::SecurityGroup SecurityGroupIngress.* NOT_IN %disallowed_ingress_rule
