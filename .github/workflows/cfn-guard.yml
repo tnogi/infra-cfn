@@ -12,4 +12,3 @@ jobs:
         uses: aws-cloudformation/cloudformation-guard@action-v0.0.5
         with:
           rules: ./cfn-guard-rules/ruleset
-          data: './infra'
