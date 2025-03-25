@@ -33,7 +33,7 @@ jobs:
           changed_templates=$(git diff HEAD^ --name-only | grep -c ${{ env.WORKING_DIRECTORY }}/)
           echo changed_templates=$changed_templates >> "$GITHUB_OUTPUT"
 
-      - name: Upload to S3
+      - name: Exec CloudFormation Guard
         if: ${{ steps.templates.outputs.changed_templates > 0 }};
         run: |
           templates=$(git diff HEAD^ --name-status | grep ${{ env.WORKING_DIRECTORY }}/ | grep "^M\|^A" | cut -f2)
