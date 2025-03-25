@@ -43,5 +43,5 @@ jobs:
 
           templates=$(git diff HEAD^ --name-status | grep ${{ env.WORKING_DIRECTORY }}/ | grep "^M\|^A" | cut -f2)
           for template in $templates; do
-            cfn-guard vaidate --data ./infra/$template --rule ./cfn-guard-rules/ruleset
+            cfn-guard validate --data ./infra/$template --rule ./cfn-guard-rules/ruleset
           done
