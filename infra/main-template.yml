@@ -16,6 +16,7 @@ Parameters:
     Type: String
     Default: 'arn:aws:iam::209746572579:role/tnogi-admin'
 
+
 Resources:
   VPC:
     Type: AWS::CloudFormation::Stack
