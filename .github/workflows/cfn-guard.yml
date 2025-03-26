@@ -41,7 +41,7 @@ jobs:
           pwd
           ls -la
           curl --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/aws-cloudformation/cloudformation-guard/main/install-guard.sh | sh
-          export PATH="$HOME/.guard/bin:$PATH
+          export PATH="$HOME/.guard/bin:$PATH"
           echo "Installed cfn-guard"
           cfn-guard --version
           echo "cfn-guard version showed"
