@@ -8,6 +8,9 @@ defaults:
   run:
       shell: bash
 
+env:
+  WORKING_DIRECTORY: .
+
 permissions:
   id-token: write
   contents: read
