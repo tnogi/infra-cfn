@@ -33,6 +33,6 @@ jobs:
           cfn-guard --version
           echo "cfn-guard version showed"
 
-          cfn-guard rulegen --template ./infra/vpc-template.yml --output s3.guard
+          cfn-guard rulegen --template ./infra/main-template.yml --output s3.guard
           cat s3.guard
           
