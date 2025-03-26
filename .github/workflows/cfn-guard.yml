@@ -9,7 +9,7 @@ defaults:
       shell: bash
 
 env:
-  WORKING_DIRECTORY: .
+  WORKING_DIRECTORY: infra
 
 permissions:
   id-token: write
