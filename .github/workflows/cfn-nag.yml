@@ -10,7 +10,7 @@ on:
       - opened
       - synchronize
     branches: 
-      - master
+      - main
   workflow_dispatch:
 
 jobs:
