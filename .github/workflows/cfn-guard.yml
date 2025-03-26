@@ -1,3 +1,4 @@
+# https://techblog.forgevision.com/entry/cloudformation-guard
 name: CloudFormation Guard validate
 
 on:
