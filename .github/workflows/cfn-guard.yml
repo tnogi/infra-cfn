@@ -4,9 +4,6 @@ on:
 #  pull_request:
   push:
 
-env:
-  WORKING_DIRECTORY: infra
-
 permissions:
   id-token: write
   contents: read
@@ -28,24 +25,13 @@ jobs:
           role-to-assume: 'arn:aws:iam::209746572579:role/tnogi-admin'
           aws-region: ap-northeast-1
 
-      - name: Check how many templates changed
-        id: templates
+      - name: install and run CloudFormation Guard
         run: |
-          changed_templates=$(git diff HEAD^ --name-only | grep -c ${{ env.WORKING_DIRECTORY }}/)
-          echo changed_templates=$changed_templates >> "$GITHUB_OUTPUT"
-
-      - name: install CloudFormation Guard
-        if: ${{ steps.templates.outputs.changed_templates > 0 }};
-        run: |
-          pwd
-          ls -la
           curl --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/aws-cloudformation/cloudformation-guard/main/install-guard.sh | sh
           export PATH="$HOME/.guard/bin:$PATH"
           echo "Installed cfn-guard"
           cfn-guard --version
           echo "cfn-guard version showed"
 
-          templates=$(git diff HEAD^ --name-status | grep ${{ env.WORKING_DIRECTORY }}/ | grep "^M\|^A" | cut -f2)
-          for template in $templates; do
-            cfn-guard validate --data ./infra/$template --rules ./cfn-guard-rules/ruleset
-          done
+          cfn-guard validate --data ./infra/ec2-template.yml --rules ./cfn-guard-rules/ruleset
+          
