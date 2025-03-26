@@ -34,4 +34,7 @@ jobs:
           echo "cfn-guard version showed"
 
           cfn-guard validate --data ./infra/ec2-template.yml --rules ./cfn-guard-rules/ruleset --show-summary all
+          cfn-guard validate --data ./infra/k8s-bastion-template.yml --rules ./cfn-guard-rules/ruleset --show-summary all
+          cfn-guard validate --data ./infra/main-template.yml --rules ./cfn-guard-rules/ruleset --show-summary all
+          cfn-guard validate --data ./infra/vpc-template.yml --rules ./cfn-guard-rules/ruleset --show-summary all
           
