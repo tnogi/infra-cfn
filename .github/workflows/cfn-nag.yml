@@ -1,5 +1,5 @@
 # https://github.com/marketplace/actions/cfn-security
-name: CloudFormation Guard validate
+name: cfn-nag scan
 
 on:
 #  pull_request:
