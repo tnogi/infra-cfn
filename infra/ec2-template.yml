@@ -37,9 +37,9 @@ Parameters:
 Mappings:
   RegionMap:
     us-east-1:
-      RockyLinux8: ami-011ef2017d41cb239
+      RockyLinux8: ami-0c15e602d3d6c6c4a
     ap-northeast-1:
-      RockyLinux8: ami-0c38a5fa7b9dbd96c
+      RockyLinux8: ami-07f63d80296cfee44
 
 Resources:
   SecurityGroup:
