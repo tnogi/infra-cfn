@@ -1,0 +1,22 @@
+# https://github.com/marketplace/actions/cfn-security
+name: CloudFormation Guard validate
+
+on:
+#  pull_request:
+  push:
+
+jobs:
+  check-cfn-templates:
+    name: Check AWS CloudFormation templates
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: install and scan CloudFormation
+        uses: grolston/cfn-security@v2
+        with:
+          cloudformation_directory: './infra/'
+          scanner: "cfn-nag"
