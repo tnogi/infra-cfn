@@ -33,6 +33,5 @@ jobs:
           cfn-guard --version
           echo "cfn-guard version showed"
 
-          ls -la ./infra
-          cfn-guard validate --data ~/infra/ec2-template.yaml --rules ./cfn-guard-rules/ruleset --show-summary all
+          cfn-guard validate --data ~/infra/ec2-template.yml --rules ./cfn-guard-rules/ruleset --show-summary all
           
