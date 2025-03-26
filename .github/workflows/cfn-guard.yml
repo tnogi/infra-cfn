@@ -4,11 +4,6 @@ on:
 #  pull_request:
   push:
 
-permissions:
-  id-token: write
-  contents: read
-  packages: read
-
 jobs:
   check-cfn-templates:
     name: Check AWS CloudFormation templates
@@ -18,12 +13,6 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          role-to-assume: 'arn:aws:iam::209746572579:role/tnogi-admin'
-          aws-region: ap-northeast-1
 
       - name: install and run CloudFormation Guard
         run: |
