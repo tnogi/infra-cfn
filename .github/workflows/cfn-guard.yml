@@ -4,10 +4,6 @@ on:
 #  pull_request:
   push:
 
-defaults:
-  run:
-      shell: bash
-
 env:
   WORKING_DIRECTORY: infra
 
