@@ -1,7 +1,6 @@
 AWSTemplateFormatVersion: "2010-09-09"
 # https://dev.classmethod.jp/articles/getting-started-amazon-eks-with-eksctl/
 
-
 Parameters:
   CidrBlockVPC:
     Type: String
