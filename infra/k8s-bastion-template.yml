@@ -26,7 +26,7 @@ Parameters:
     Default: k8s-app
   IAMServiceArn:
     Type: String
-    Default: 'arn:aws:iam::209746572579:role/tnogi-admin'
+    Default: '***'
   AmazonLinuxLatestAmiId:
     Type: 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
     Default: '/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2'
