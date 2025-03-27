@@ -11,23 +11,23 @@ Parameters:
   KeyName:
     Description: The EC2 Key Pair to allow SSH access to the instance
     Type: AWS::EC2::KeyPair::KeyName
-    Default: tnogi
+    Default: '***'
   IAMServiceArn:
     Type: String
-    Default: 'arn:aws:iam::207567801874:role/tnogi-admin'
+    Default: '***'
 
 Resources:
   VPC:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: https://cf-templates-tnogi-dev-us-east-1.s3.us-east-1.amazonaws.com/vpc-template.yml
+      TemplateURL: https://***/vpc-template.yml
       Parameters:
         CidrBlockVPC: !Ref CidrBlockVPC
 
   MongoDB:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: https://cf-templates-tnogi-dev-us-east-1.s3.us-east-1.amazonaws.com/ec2-template.yml
+      TemplateURL: https://***/ec2-template.yml
       Parameters:
         AllowIP: !Ref AllowIP
         VPC: !GetAtt VPC.Outputs.VPC
@@ -39,7 +39,7 @@ Resources:
   k8sBastion:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: https://cf-templates-tnogi-dev-us-east-1.s3.us-east-1.amazonaws.com/k8s-bastion-template.yml
+      TemplateURL: https://***/k8s-bastion-template.yml
       Parameters:
         VPC: !GetAtt VPC.Outputs.VPC
         PublicSubnet1: !GetAtt VPC.Outputs.PublicSubnet1Id
