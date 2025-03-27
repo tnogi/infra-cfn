@@ -47,7 +47,7 @@ Parameters:
     Type: String
     MinLength: 1
     ConstraintDescription: "OIDC Arn must be entered."
-    Default: arn:aws:iam::209746572579:oidc-provider/token.actions.githubusercontent.com
+    Default: ***
 
 # -------------------------------------
 # Resources
